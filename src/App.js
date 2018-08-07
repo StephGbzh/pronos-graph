@@ -3,7 +3,12 @@ import './App.css';
 
 import {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
 
-const players = {"1":"Jacques","2":"Nicolas","3":"Stéphane","4":"Valérie"}
+const players = {
+  "1":{name:"Jacques" , color:"#8f39ff"},
+  "2":{name:"Nicolas" , color:"#39ffe5"},
+  "3":{name:"Stéphane", color:"#ffc739"},
+  "4":{name:"Valérie" , color:"#ff6439"}
+}
 
 const data0 = [
 {"teams":{"A":"RUS","B":"ARA"},"stage":{"type":"Groupe","name":"A"},"result":{"A":5,"B":0},"players":{"1":{"A":4,"B":1},"2":{"A":2,"B":1},"3":{"A":1,"B":2},"4":{"A":2,"B":0}}},
@@ -117,20 +122,20 @@ const outcome = (prono, result) => {
 
 const buildResultFromMatch = (match) => {
   return Object.entries(match.players).reduce((results, [playerId, prono]) => {
-    results[players[playerId]] = bareme[match.stage.type][outcome(prono, match.result)]
+    results[players[playerId].name] = bareme[match.stage.type][outcome(prono, match.result)]
     return results
   }, {})
 }
 
-const sumObjectsByKey = (...objs) => (
-  objs.reduce((a, b) => {
-    for (let k in b) {
-      if (b.hasOwnProperty(k))
-        a[k] = (a[k] || 0) + b[k];
-    }
-    return a;
-  }, {})
-)
+// const sumObjectsByKey = (...objs) => (
+//   objs.reduce((a, b) => {
+//     for (let k in b) {
+//       if (b.hasOwnProperty(k))
+//         a[k] = (a[k] || 0) + b[k];
+//     }
+//     return a;
+//   }, {})
+// )
 
 const buildResultsFromMatches = (matches) => {
   return matches.reduce((results, match) => {
@@ -141,18 +146,18 @@ const buildResultsFromMatches = (matches) => {
 
 const buildAggregatedResultFromMatches = (matches) => {
   let results = buildResultsFromMatches(matches)
-  let previousTotals = Object.values(players).reduce((ps, pname) => {ps[pname] = 0;return ps;}, {})
+  let previousTotals = Object.values(players).reduce((ps, { name }) => {ps[name] = 0;return ps;}, {})
   let dataForGraph = Object.entries(results).reduce((matchesForGraph, [matchKey, match], i) => {
-    let matchForGraph = Object.values(players).reduce((totals, p) => {
-      totals[p] = match[p] + (i > 0 ? previousTotals[p] : 0)
-      previousTotals[p] = totals[p]
+    let matchForGraph = Object.values(players).reduce((totals, { name }) => {
+      totals[name] = match[name] + (i > 0 ? previousTotals[name] : 0)
+      previousTotals[name] = totals[name]
       return totals
     }, {name:matchKey})
     matchesForGraph.push(matchForGraph)
     return matchesForGraph
   },
   // {name:"FRA-CRO",Jacques:0,Nicolas:0}
-  [Object.values(players).reduce((ps, pname) => {ps[pname] = 0;return ps;}, {name:"DEBUT"})])
+  [Object.values(players).reduce((ps, { name }) => {ps[name] = 0;return ps;}, {name:"DEBUT"})])
   console.log(dataForGraph)
   return dataForGraph
 }
@@ -161,7 +166,7 @@ const buildAggregatedResultFromMatches = (matches) => {
 // Output: [1, 2, 3, 101, 10]
 const mergeDedupe = (arr) => [...new Set([].concat(...arr))]
 
-// return a new array without the specified element
+// return the array without the specified element
 const removeElement = (element, array) => {
   array.splice(array.indexOf(element), 1)
   return array
@@ -182,10 +187,7 @@ const SimpleLineChart = ({data}) =>(
        <CartesianGrid strokeDasharray="3 3"/>
        <Tooltip/>
        <Legend />
-       <Line type="monotone" dataKey="Jacques" stroke="#8f39ff" />
-       <Line type="monotone" dataKey="Nicolas" stroke="#39ffe5" />
-       <Line type="monotone" dataKey="Valérie" stroke="#ff6439" />
-       <Line type="monotone" dataKey="Stéphane" stroke="#ffc739" />
+       {Object.values(players).map(p => <Line key={p.name} type="monotone" dataKey={p.name} stroke={p.color} />)}
       </LineChart>
     );
 
@@ -193,106 +195,57 @@ const CheckBox = ({id, onChange, checked}) => {
   //console.log(`${id} ${checked}`)
     return (
   <div>
-    <input type="checkbox" id={id} name={filters[id].title} onChange={onChange} checked={checked}/>
-    <label htmlFor={id}>{filters[id].title}</label>
+    <input type="checkbox" id={id} name={id} onChange={onChange} checked={checked}/>
+    <label htmlFor={id}>{id}</label>
   </div>
     )
   }
 
-const filters = {
-  "-1":{title:"Tous les matchs", filter:d => true, children:[1,2]},
-  "1":{title:"Tous les groupes", filter:d => d.stage.type === "Groupe", children:[3,4,5,6,7,8,9,10], parent:-1},
-  "2":{title:"Matchs à élimination directe", filter:d => d.stage.type !== "Groupe", children:[11,12,13,14,15], parent:-1},
-  "3":{title:"A", filter:d => d.stage.type === "Groupe" && d.stage.name === "A", parent:1},
-  "4":{title:"B", filter:d => d.stage.type === "Groupe" && d.stage.name === "B", parent:1},
-  "5":{title:"C", filter:d => d.stage.type === "Groupe" && d.stage.name === "C", parent:1},
-  "6":{title:"D", filter:d => d.stage.type === "Groupe" && d.stage.name === "D", parent:1},
-  "7":{title:"E", filter:d => d.stage.type === "Groupe" && d.stage.name === "E", parent:1},
-  "8":{title:"F", filter:d => d.stage.type === "Groupe" && d.stage.name === "F", parent:1},
-  "9":{title:"G", filter:d => d.stage.type === "Groupe" && d.stage.name === "G", parent:1},
-  "10":{title:"H", filter:d => d.stage.type === "Groupe" && d.stage.name === "H", parent:1},
-  "11":{title:"1/8", filter:d => d.stage.type === "1/8", parent:2},
-  "12":{title:"1/4", filter:d => d.stage.type === "1/4", parent:2},
-  "13":{title:"1/2", filter:d => d.stage.type === "1/2", parent:2},
-  "14":{title:"Petite Finale", filter:d => d.stage.type === "Petite Finale", parent:2},
-  "15":{title:"Finale", filter:d => d.stage.type === "Finale", parent:2},
-}
+const filters = [
+  {title:"Grp.A", filter:d => (d.stage.type === "Groupe" && d.stage.name === "A")},
+  {title:"Grp.B", filter:d => (d.stage.type === "Groupe" && d.stage.name === "B")},
+  {title:"Grp.C", filter:d => (d.stage.type === "Groupe" && d.stage.name === "C")},
+  {title:"Grp.D", filter:d => (d.stage.type === "Groupe" && d.stage.name === "D")},
+  {title:"Grp.E", filter:d => (d.stage.type === "Groupe" && d.stage.name === "E")},
+  {title:"Grp.F", filter:d => (d.stage.type === "Groupe" && d.stage.name === "F")},
+  {title:"Grp.G", filter:d => (d.stage.type === "Groupe" && d.stage.name === "G")},
+  {title:"Grp.H", filter:d => (d.stage.type === "Groupe" && d.stage.name === "H")},
+  {title:"1/8", filter:d => (d.stage.type === "1/8")},
+  {title:"1/4", filter:d => (d.stage.type === "1/4")},
+  {title:"1/2", filter:d => (d.stage.type === "1/2")},
+  {title:"Petite Finale", filter:d => (d.stage.type === "Petite Finale")},
+  {title:"Finale", filter:d => (d.stage.type === "Finale")},
+]
 
 class App extends Component {
   state = {
     data: data0,
-    checkedList:Object.keys(filters).map(key => parseInt(key))
+    checkedList:filters.map(e => e.title)
   }
 
-  toggleCheckBox = (e) => {
-    console.log(e.target.id + " " + e.target.name + " " + e.target.checked)
-    //this.setState({data:filters[e.target.id].filter(data0)})
+  toggleCheckBox = (event) => {
+    //console.log(event.target.id + " " + event.target.name + " " + event.target.checked)
     // deep copy the array
     // https://stackoverflow.com/questions/7486085/copying-array-by-value-in-javascript 
     let checkedList = this.state.checkedList.slice()
-    let clickedId = parseInt(e.target.id)
+    let clickedItem = event.target.name
 
-    if (e.target.checked) {
-      let descendants = this.getDescendants(clickedId)
-      checkedList = mergeDedupe([descendants, checkedList, [clickedId]])
+    if (event.target.checked) {
+      checkedList = mergeDedupe([checkedList, [clickedItem]])
     } else {
-      let descendants = this.getDescendants(clickedId)
-      checkedList = removeElement(clickedId, removeElements(descendants, checkedList))
-      let ascendants = this.getAscendants(clickedId)
-      checkedList = removeElements(ascendants, checkedList)
+      checkedList = removeElement(clickedItem, checkedList)
     }
 
+    let newData = checkedList.reduce((filteredData, checkedElement) =>
+      {
+        let currentFilter = filters.filter(f => f.title === checkedElement)[0]
+        let matchingMatches = data0.filter(match => currentFilter.filter(match))
+        return filteredData.concat(matchingMatches)
+      }, [])
 
-    //workCB(e.target, clickedId, checkedList)
-    //let children = filters[clickedId].children
-    this.setState({checkedList:checkedList})
+    this.setState({checkedList:checkedList, data:newData})
   }
-
   
-  getAscendants = (id) => {
-    let ascendants = []
-    let parent = filters[id].parent
-    if (parent) {
-      ascendants.push(parent)
-      let grandParent = filters[parent].parent
-      if (grandParent) {
-        ascendants.push(grandParent)
-      }
-    }
-    return ascendants
-  }
-
-  getDescendants = (id) => {
-    let descendants = []
-    let children = filters[id].children
-    if (children) {
-      descendants = children
-      descendants.forEach(d => {
-        if (filters[d].children) {
-          descendants = descendants.concat(filters[d].children)
-        }
-      })
-    }
-    return descendants
-  }
-
-  checkAllDescendantsAreChecked = (id) => {
-
-  }
-
-  /* si coché, tous ses enfants et petits-enfants doivent devenir cochés */
-  /* si décoché, tous ses enfants et petits-enfants doivent devenir décochés */
-  /* si coché, tous ses parents et grands-parents doivent vérifier que tous leurs enfants/petits-enfants sont cochés */
-  /* si décoché, tous ses parents et grands-parents doivent devenir décochés */
-
-  workCB = (clickedTarget, clickedId, checkedList) => {
-    if (clickedTarget.checked) {
-      checkedList.push(clickedId)
-    } else {
-      checkedList.splice(checkedList.indexOf(clickedId), 1)
-    }
-  }
-
   render() {
     const { data, checkedList } = this.state
     //console.log("checked", checked)
@@ -301,24 +254,11 @@ class App extends Component {
         <table style={{width:1000}}>
           <tbody>
             <tr>
-              <td colSpan={13}>
-                <CheckBox id={-1} onChange={this.toggleCheckBox} checked={checkedList.includes(-1)}/>
-              </td>
-            </tr>
-            <tr>
-              <td colSpan={8}>
-                <CheckBox id={1} onChange={this.toggleCheckBox} checked={checkedList.includes(1)}/>
-              </td>
-              <td colSpan={5}>
-                <CheckBox id={2} onChange={this.toggleCheckBox} checked={checkedList.includes(2)}/>
-              </td>
-            </tr>
-            <tr>
-            {Object.keys(filters).filter(key => key > 2).map((key) => {
+            {filters.map((e) => {
               //console.log(`checkedList.includes(key) ${checkedList} ${key} ${checkedList.includes(parseInt(key))}`)
               return (
-              <td key={key}>
-                <CheckBox id={key} onChange={this.toggleCheckBox} checked={checkedList.includes(parseInt(key))}/>
+              <td key={e.title}>
+                <CheckBox id={e.title} onChange={this.toggleCheckBox} checked={checkedList.includes(e.title)}/>
               </td>)})
               }
             </tr>
