@@ -10,6 +10,12 @@ const players = {
   "4":{name:"Valérie" , color:"#ff6439"}
 }
 
+const regions = ["Europe","Amérique du Nord & Centrale","Amérique du Sud","Afrique","Asie & Océanie"]
+const countries = {
+  "SUI":0,"RUS":0,"ARA":4,"EGY":3,"URU":2,"MAR":3,"IRA":4,"POR":0,"ESP":0,"FRA":0,"AUS":4,
+  "ARG":2,"ISL":0,"PER":2,"DAN":0,"CRO":0,"NIG":3,"COS":1,"SER":0,"ALL":0,"MEX":1,"BRE":2,
+  "SUE":0,"COR":4,"BEL":0,"PAN":1,"TUN":3,"ANG":0,"COL":2,"JAP":4,"POL":0,"SEN":3}
+
 const data0 = [
 {"teams":{"A":"RUS","B":"ARA"},"stage":{"type":"Groupe","name":"A"},"result":{"A":5,"B":0},"players":{"1":{"A":4,"B":1},"2":{"A":2,"B":1},"3":{"A":1,"B":2},"4":{"A":2,"B":0}}},
 {"teams":{"A":"EGY","B":"URU"},"stage":{"type":"Groupe","name":"A"},"result":{"A":0,"B":1},"players":{"1":{"A":1,"B":2},"2":{"A":0,"B":2},"3":{"A":0,"B":3},"4":{"A":0,"B":3}}},
@@ -127,16 +133,6 @@ const buildResultFromMatch = (match) => {
   }, {})
 }
 
-// const sumObjectsByKey = (...objs) => (
-//   objs.reduce((a, b) => {
-//     for (let k in b) {
-//       if (b.hasOwnProperty(k))
-//         a[k] = (a[k] || 0) + b[k];
-//     }
-//     return a;
-//   }, {})
-// )
-
 const buildResultsFromMatches = (matches) => {
   return matches.reduce((results, match) => {
     results[`${match.teams.A}-${match.teams.B}`] = buildResultFromMatch(match)
@@ -191,15 +187,12 @@ const SimpleLineChart = ({data}) =>(
       </LineChart>
     );
 
-const CheckBox = ({id, onChange, checked}) => {
-  //console.log(`${id} ${checked}`)
-    return (
+const CheckBox = ({id, onChange, checked}) => (
   <div>
     <input type="checkbox" id={id} name={id} onChange={onChange} checked={checked}/>
     <label htmlFor={id}>{id}</label>
   </div>
     )
-  }
 
 const filters = [
   {title:"Grp.A", filter:d => (d.stage.type === "Groupe" && d.stage.name === "A")},
@@ -220,7 +213,9 @@ const filters = [
 class App extends Component {
   state = {
     data: data0,
-    checkedList:filters.map(e => e.title)
+    dataRegions:data0,
+    checkedList:filters.map(e => e.title),
+    checkedRegions:regions
   }
 
   toggleCheckBox = (event) => {
@@ -245,26 +240,51 @@ class App extends Component {
 
     this.setState({checkedList:checkedList, data:newData})
   }
+
+  toggleRegion = (event) => {
+    let checkedRegions = this.state.checkedRegions.slice()
+    let clickedItem = event.target.name
+
+    if (event.target.checked) {
+      checkedRegions = mergeDedupe([checkedRegions, [clickedItem]])
+    } else {
+      checkedRegions = removeElement(clickedItem, checkedRegions)
+    }
+
+    let newData = data0.filter(match => checkedRegions.includes(regions[countries[match.teams.A]]) &&
+      checkedRegions.includes(regions[countries[match.teams.B]]))
+
+    this.setState({checkedRegions:checkedRegions, dataRegions:newData})
+  }
   
   render() {
-    const { data, checkedList } = this.state
-    //console.log("checked", checked)
+    const { data, dataRegions, checkedList, checkedRegions } = this.state
     return (
       <div className="App">
         <table style={{width:1000}}>
           <tbody>
             <tr>
-            {filters.map((e) => {
-              //console.log(`checkedList.includes(key) ${checkedList} ${key} ${checkedList.includes(parseInt(key))}`)
-              return (
+            {filters.map((e) => (
               <td key={e.title}>
                 <CheckBox id={e.title} onChange={this.toggleCheckBox} checked={checkedList.includes(e.title)}/>
-              </td>)})
+              </td>))
               }
             </tr>
           </tbody>
         </table>
         <SimpleLineChart data={buildAggregatedResultFromMatches(data)}/>
+        <table style={{width:1000}}>
+          <tbody>
+            <tr>
+            {regions.map((region) => (
+              <td key={region}>
+                <CheckBox id={region} onChange={this.toggleRegion} checked={checkedRegions.includes(region)}/>
+              </td>))
+              }
+            </tr>
+          </tbody>
+        </table>
+        <SimpleLineChart data={buildAggregatedResultFromMatches(dataRegions)}/>
       </div>
     );
   }
