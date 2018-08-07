@@ -3,19 +3,9 @@ import './App.css';
 
 import {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
 
-const data1 = [
-  {name: 'Page A', uv: 4000, pv: 2400, amt: 2400},
-  {name: 'Page B', uv: 3000, pv: 1398, amt: 2210},
-  {name: 'Page C', uv: 2000, pv: 9800, amt: 2290},
-  {name: 'Page D', uv: 2780, pv: 3908, amt: 2000},
-  {name: 'Page E', uv: 1890, pv: 4800, amt: 2181},
-  {name: 'Page F', uv: 2390, pv: 3800, amt: 2500},
-  {name: 'Page G', uv: 3490, pv: 4300, amt: 2100},
-];
-
 const players = {"1":"Jacques","2":"Nicolas","3":"Stéphane","4":"Valérie"}
 
-const data2 = [
+const data0 = [
 {"teams":{"A":"RUS","B":"ARA"},"stage":{"type":"Groupe","name":"A"},"result":{"A":5,"B":0},"players":{"1":{"A":4,"B":1},"2":{"A":2,"B":1},"3":{"A":1,"B":2},"4":{"A":2,"B":0}}},
 {"teams":{"A":"EGY","B":"URU"},"stage":{"type":"Groupe","name":"A"},"result":{"A":0,"B":1},"players":{"1":{"A":1,"B":2},"2":{"A":0,"B":2},"3":{"A":0,"B":3},"4":{"A":0,"B":3}}},
 {"teams":{"A":"MAR","B":"IRA"},"stage":{"type":"Groupe","name":"B"},"result":{"A":0,"B":1},"players":{"1":{"A":3,"B":1},"2":{"A":1,"B":1},"3":{"A":2,"B":1},"4":{"A":1,"B":1}}},
@@ -143,14 +133,14 @@ const sumObjectsByKey = (...objs) => (
 )
 
 const buildResultsFromMatches = (matches) => {
-  return data2.reduce((results, match) => {
+  return matches.reduce((results, match) => {
     results[`${match.teams.A}-${match.teams.B}`] = buildResultFromMatch(match)
     return results
   }, {})
 }
 
 const buildAggregatedResultFromMatches = (matches) => {
-  let results = buildResultsFromMatches(data2)
+  let results = buildResultsFromMatches(matches)
   let previousTotals = Object.values(players).reduce((ps, pname) => {ps[pname] = 0;return ps;}, {})
   let dataForGraph = Object.entries(results).reduce((matchesForGraph, [matchKey, match], i) => {
     let matchForGraph = Object.values(players).reduce((totals, p) => {
@@ -163,12 +153,28 @@ const buildAggregatedResultFromMatches = (matches) => {
   },
   // {name:"FRA-CRO",Jacques:0,Nicolas:0}
   [Object.values(players).reduce((ps, pname) => {ps[pname] = 0;return ps;}, {name:"DEBUT"})])
+  console.log(dataForGraph)
   return dataForGraph
 }
 
-console.log(buildAggregatedResultFromMatches(data2))
+// Input: [ [1, 2, 3], [101, 2, 1, 10], [2, 1] ]
+// Output: [1, 2, 3, 101, 10]
+const mergeDedupe = (arr) => [...new Set([].concat(...arr))]
 
-const SimpleLineChart2 = ({data}) =>(
+// return a new array without the specified element
+const removeElement = (element, array) => {
+  array.splice(array.indexOf(element), 1)
+  return array
+}
+
+const removeElements = (elements, array) => 
+{
+  let result = elements.reduce((newarray, e) =>
+    newarray = removeElement(e, newarray), array)
+  return result
+}
+
+const SimpleLineChart = ({data}) =>(
     	<LineChart width={1000} height={500} data={data}
             margin={{top: 5, right: 30, left: 20, bottom: 5}}>
        <XAxis dataKey="name"/>
@@ -183,11 +189,142 @@ const SimpleLineChart2 = ({data}) =>(
       </LineChart>
     );
 
+const CheckBox = ({id, onChange, checked}) => {
+  //console.log(`${id} ${checked}`)
+    return (
+  <div>
+    <input type="checkbox" id={id} name={filters[id].title} onChange={onChange} checked={checked}/>
+    <label htmlFor={id}>{filters[id].title}</label>
+  </div>
+    )
+  }
+
+const filters = {
+  "-1":{title:"Tous les matchs", filter:d => true, children:[1,2]},
+  "1":{title:"Tous les groupes", filter:d => d.stage.type === "Groupe", children:[3,4,5,6,7,8,9,10], parent:-1},
+  "2":{title:"Matchs à élimination directe", filter:d => d.stage.type !== "Groupe", children:[11,12,13,14,15], parent:-1},
+  "3":{title:"A", filter:d => d.stage.type === "Groupe" && d.stage.name === "A", parent:1},
+  "4":{title:"B", filter:d => d.stage.type === "Groupe" && d.stage.name === "B", parent:1},
+  "5":{title:"C", filter:d => d.stage.type === "Groupe" && d.stage.name === "C", parent:1},
+  "6":{title:"D", filter:d => d.stage.type === "Groupe" && d.stage.name === "D", parent:1},
+  "7":{title:"E", filter:d => d.stage.type === "Groupe" && d.stage.name === "E", parent:1},
+  "8":{title:"F", filter:d => d.stage.type === "Groupe" && d.stage.name === "F", parent:1},
+  "9":{title:"G", filter:d => d.stage.type === "Groupe" && d.stage.name === "G", parent:1},
+  "10":{title:"H", filter:d => d.stage.type === "Groupe" && d.stage.name === "H", parent:1},
+  "11":{title:"1/8", filter:d => d.stage.type === "1/8", parent:2},
+  "12":{title:"1/4", filter:d => d.stage.type === "1/4", parent:2},
+  "13":{title:"1/2", filter:d => d.stage.type === "1/2", parent:2},
+  "14":{title:"Petite Finale", filter:d => d.stage.type === "Petite Finale", parent:2},
+  "15":{title:"Finale", filter:d => d.stage.type === "Finale", parent:2},
+}
+
 class App extends Component {
+  state = {
+    data: data0,
+    checkedList:Object.keys(filters).map(key => parseInt(key))
+  }
+
+  toggleCheckBox = (e) => {
+    console.log(e.target.id + " " + e.target.name + " " + e.target.checked)
+    //this.setState({data:filters[e.target.id].filter(data0)})
+    // deep copy the array
+    // https://stackoverflow.com/questions/7486085/copying-array-by-value-in-javascript 
+    let checkedList = this.state.checkedList.slice()
+    let clickedId = parseInt(e.target.id)
+
+    if (e.target.checked) {
+      let descendants = this.getDescendants(clickedId)
+      checkedList = mergeDedupe([descendants, checkedList, [clickedId]])
+    } else {
+      let descendants = this.getDescendants(clickedId)
+      checkedList = removeElement(clickedId, removeElements(descendants, checkedList))
+      let ascendants = this.getAscendants(clickedId)
+      checkedList = removeElements(ascendants, checkedList)
+    }
+
+
+    //workCB(e.target, clickedId, checkedList)
+    //let children = filters[clickedId].children
+    this.setState({checkedList:checkedList})
+  }
+
+  
+  getAscendants = (id) => {
+    let ascendants = []
+    let parent = filters[id].parent
+    if (parent) {
+      ascendants.push(parent)
+      let grandParent = filters[parent].parent
+      if (grandParent) {
+        ascendants.push(grandParent)
+      }
+    }
+    return ascendants
+  }
+
+  getDescendants = (id) => {
+    let descendants = []
+    let children = filters[id].children
+    if (children) {
+      descendants = children
+      descendants.forEach(d => {
+        if (filters[d].children) {
+          descendants = descendants.concat(filters[d].children)
+        }
+      })
+    }
+    return descendants
+  }
+
+  checkAllDescendantsAreChecked = (id) => {
+
+  }
+
+  /* si coché, tous ses enfants et petits-enfants doivent devenir cochés */
+  /* si décoché, tous ses enfants et petits-enfants doivent devenir décochés */
+  /* si coché, tous ses parents et grands-parents doivent vérifier que tous leurs enfants/petits-enfants sont cochés */
+  /* si décoché, tous ses parents et grands-parents doivent devenir décochés */
+
+  workCB = (clickedTarget, clickedId, checkedList) => {
+    if (clickedTarget.checked) {
+      checkedList.push(clickedId)
+    } else {
+      checkedList.splice(checkedList.indexOf(clickedId), 1)
+    }
+  }
+
   render() {
+    const { data, checkedList } = this.state
+    //console.log("checked", checked)
     return (
       <div className="App">
-        <SimpleLineChart2 data={buildAggregatedResultFromMatches(data2)}/>
+        <table style={{width:1000}}>
+          <tbody>
+            <tr>
+              <td colSpan={13}>
+                <CheckBox id={-1} onChange={this.toggleCheckBox} checked={checkedList.includes(-1)}/>
+              </td>
+            </tr>
+            <tr>
+              <td colSpan={8}>
+                <CheckBox id={1} onChange={this.toggleCheckBox} checked={checkedList.includes(1)}/>
+              </td>
+              <td colSpan={5}>
+                <CheckBox id={2} onChange={this.toggleCheckBox} checked={checkedList.includes(2)}/>
+              </td>
+            </tr>
+            <tr>
+            {Object.keys(filters).filter(key => key > 2).map((key) => {
+              //console.log(`checkedList.includes(key) ${checkedList} ${key} ${checkedList.includes(parseInt(key))}`)
+              return (
+              <td key={key}>
+                <CheckBox id={key} onChange={this.toggleCheckBox} checked={checkedList.includes(parseInt(key))}/>
+              </td>)})
+              }
+            </tr>
+          </tbody>
+        </table>
+        <SimpleLineChart data={buildAggregatedResultFromMatches(data)}/>
       </div>
     );
   }
