@@ -6,10 +6,10 @@
 ✔ Ranking graph by group  
 ✔ Ranking graph by phase (groups, 1/8, ...)  
 ✔ Ranking graph by continent/confederation  
+✔ Tooltip on checkboxes: which countries are in Group B, in Europe...  
 
 ## TODO
 
 - Ranking graph by country
 - Make changeable the points value of the right score/goal diff/winner
 - Filter by phase or continent on the same graph (radio button?)
-- Tooltip on checkboxes: which countries are in Group B, in Europe...

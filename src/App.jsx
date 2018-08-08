@@ -109,7 +109,7 @@ const removeElements = (elements, array) =>
 
 const SimpleLineChart = ({data}) =>(
     	<LineChart width={1000} height={500} data={data}
-            margin={{top: 5, right: 30, left: 20, bottom: 5}}>
+                 margin={{top: 5, right: 30, left: 20, bottom: 5}}>
        <XAxis dataKey="name"/>
        <YAxis/>
        <CartesianGrid strokeDasharray="3 3"/>
@@ -119,12 +119,22 @@ const SimpleLineChart = ({data}) =>(
       </LineChart>
     );
 
-const CheckBox = ({id, onChange, checked}) => (
+const getTeamsFromGroup = (grp) => Object.entries(teams).filter(([_, {group}]) => group === grp).map(([k]) => k)
+
+const CheckBox = ({filter, onChange, checked}) => (
+  <div>
+    <input type="checkbox" id={filter.title} name={filter.title} onChange={onChange} checked={checked}/>
+    <label data-tip={filter.title.startsWith("Grp") ? getTeamsFromGroup(filter.title.slice(-1)).sort().join("<br/>") : ''}
+           data-multiline="true" htmlFor={filter.title}>{filter.title}</label>
+  </div>)
+
+const getTeamsFromRegion = (reg) => Object.entries(teams).filter(([_, {region}]) => region === regions.indexOf(reg)).map(([k]) => k)
+
+const CheckBox2 = ({id, onChange, checked}) => (
   <div>
     <input type="checkbox" id={id} name={id} onChange={onChange} checked={checked}/>
-    <label data-tip="UUU" htmlFor={id}>{id}</label>
-  </div>
-    )
+    <label data-tip={getTeamsFromRegion(id).sort().join("<br/>")} data-multiline="true" htmlFor={id}>{id}</label>
+  </div>)
 
 const filters = [
   {title:"Grp.A", filter:match => (match.stage.type === "Groupe" && teams[match.teams.A].group === "A")},
@@ -197,9 +207,9 @@ class App extends Component {
         <table style={{width:1000}}>
           <tbody>
             <tr>
-            {filters.map((e) => (
-              <td key={e.title}>
-                <CheckBox id={e.title} onChange={this.toggleCheckBox} checked={checkedList.includes(e.title)}/>
+            {filters.map((filter) => (
+              <td key={filter.title}>
+                <CheckBox filter={filter} onChange={this.toggleCheckBox} checked={checkedList.includes(filter.title)}/>
               </td>))
               }
             </tr>
@@ -211,7 +221,7 @@ class App extends Component {
             <tr>
             {regions.map((region) => (
               <td key={region}>
-                <CheckBox id={region} onChange={this.toggleRegion} checked={checkedRegions.includes(region)}/>
+                <CheckBox2 id={region} onChange={this.toggleRegion} checked={checkedRegions.includes(region)}/>
               </td>))
               }
             </tr>
