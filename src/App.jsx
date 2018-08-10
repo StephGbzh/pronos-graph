@@ -133,22 +133,24 @@ const getTeamsFromRegion = (reg) =>
   Object.entries(teams).filter(([_, { region }]) => region === regions.indexOf(reg)).map(([k]) => k).sort().join("<br/>")
 
 const filters = [
-  { title: "Grp.A", filter: match => (match.stage.type === "Groupe" && teams[match.teams.A].group === "A") },
-  { title: "Grp.B", filter: match => (match.stage.type === "Groupe" && teams[match.teams.A].group === "B") },
-  { title: "Grp.C", filter: match => (match.stage.type === "Groupe" && teams[match.teams.A].group === "C") },
-  { title: "Grp.D", filter: match => (match.stage.type === "Groupe" && teams[match.teams.A].group === "D") },
-  { title: "Grp.E", filter: match => (match.stage.type === "Groupe" && teams[match.teams.A].group === "E") },
-  { title: "Grp.F", filter: match => (match.stage.type === "Groupe" && teams[match.teams.A].group === "F") },
-  { title: "Grp.G", filter: match => (match.stage.type === "Groupe" && teams[match.teams.A].group === "G") },
-  { title: "Grp.H", filter: match => (match.stage.type === "Groupe" && teams[match.teams.A].group === "H") },
-  { title: "1/8", filter: match => (match.stage.type === "1/8") },
-  { title: "1/4", filter: match => (match.stage.type === "1/4") },
-  { title: "1/2", filter: match => (match.stage.type === "1/2") },
-  { title: "Petite Finale", filter: match => (match.stage.type === "Petite Finale") },
-  { title: "Finale", filter: match => (match.stage.type === "Finale") },
+  { type: "Groupe", name:"A"},
+  { type: "Groupe", name:"B"},
+  { type: "Groupe", name:"C"},
+  { type: "Groupe", name:"D"},
+  { type: "Groupe", name:"E"},
+  { type: "Groupe", name:"F"},
+  { type: "Groupe", name:"G"},
+  { type: "Groupe", name:"H"},
+  { type: "1/8"},
+  { type: "1/4"},
+  { type: "1/2"},
+  { type: "Petite Finale"},
+  { type: "Finale"}
 ]
 
-const phases = filters.map(e => e.title)
+const getDisplayName = (filter) => filter.type === "Groupe" ? `Grp.${filter.name}` : filter.type
+
+const getPhase = (match) => match.stage.type === "Groupe" ? `Grp.${teams[match.teams.A].group}` : match.stage.type
 
 class App extends Component {
   state = {
@@ -172,13 +174,7 @@ class App extends Component {
       uncheckedPhases.push(clickedItem)
     }
 
-    let checkedPhases = phases.filter(el => !uncheckedPhases.includes(el))
-
-    let newData = checkedPhases.reduce((filteredData, checkedElement) => {
-      let currentFilter = filters.filter(f => f.title === checkedElement)[0]
-      let matchingMatches = matches.filter(match => currentFilter.filter(match))
-      return filteredData.concat(matchingMatches)
-    }, [])
+    let newData = matches.filter(match => !uncheckedPhases.includes(getPhase(match)))
 
     this.setState({ uncheckedPhases: uncheckedPhases, dataPhases: newData })
   }
@@ -225,12 +221,14 @@ class App extends Component {
             <tr>
               <td>
                 <div style={{ display: (filterType === "Phases" ? "flex" : "none"), justifyContent: "center" }}>
-                  {filters.map((filter) => (
-                    <div key={filter.title}>
-                      <CheckBox id={filter.title} onChange={this.togglePhase}
-                        checked={!uncheckedPhases.includes(filter.title)}
+                  {filters.map((filter) => {
+                    let displayName = getDisplayName(filter)
+                    return (
+                    <div key={displayName}>
+                      <CheckBox id={displayName} onChange={this.togglePhase}
+                        checked={!uncheckedPhases.includes(displayName)}
                         buildTip={getTeamsFromDirtyGroup} />
-                    </div>))}
+                    </div>)})}
                 </div>
                 <div style={{ display: (filterType === "Regions" ? "flex" : "none"), justifyContent: "center" }}>
                   {regions.map((region) => (
