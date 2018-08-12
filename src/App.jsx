@@ -7,10 +7,10 @@ import teams from './data/teams.json'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
 const players = {
-  "1": { name: "Jacques", color: "#8f39ff" },
-  "2": { name: "Nicolas", color: "#39ffe5" },
-  "3": { name: "Stéphane", color: "#ffc739" },
-  "4": { name: "Valérie", color: "#ff6439" }
+  "1": { name: "Jacques", color: "#ff3419" },
+  "2": { name: "Nicolas", color: "#0000e5" },
+  "3": { name: "Stéphane", color: "#00ff00" },
+  "4": { name: "Valérie", color: "#ff00ff" }
 }
 
 const regions = ["Europe", "Amérique du Nord & Centrale", "Amérique du Sud", "Afrique", "Asie & Océanie"]
@@ -58,29 +58,61 @@ const outcome = (prono, result) => {
   return "BV"
 }
 
-const buildResultFromMatch = (match) => {
-  return Object.entries(match.players).reduce((results, [playerId, prono]) => {
-    results[players[playerId].name] = bareme[match.stage.type][outcome(prono, match.result)]
-    return results
+const buildPronosResultsFromMatch = (match) => {
+  return Object.entries(match.players).reduce((pronosResults, [playerId, prono]) => {
+    pronosResults[players[playerId].name] = bareme[match.stage.type][outcome(prono, match.result)]
+    return pronosResults
   }, {})
 }
 
-const buildResultsFromMatches = (matches) => {
-  return matches.reduce((results, match) => {
-    results[`${match.teams.A}-${match.teams.B}`] = buildResultFromMatch(match)
-    return results
+const underline = (matchResult) => {
+  if (matchResult.winner) {
+    if (matchResult.winner === "A") {
+      return <div style={{ display: "flex" }}><div className="underline">{matchResult.A}</div><div>-{matchResult.B}</div></div>
+    }
+    return <div style={{ display: "flex" }}><div>{matchResult.A}-</div><div className="underline">{matchResult.B}</div></div>
+  } else {
+    return <div style={{ display: "flex" }}>{`${matchResult.A}-${matchResult.B}`}</div>
+  }
+}
+
+const buildPronosResultsFromMatches = (matches) => {
+  return matches.reduce((pronosResults, match) => {
+    pronosResults[match.id] = {
+      shortName: `${match.teams.A}-${match.teams.B}`,
+      fullName:
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <div style={{marginRight:5}}>{match.teams.A}</div>
+          {underline(match.result)}
+          <div style={{marginLeft:5}}>{match.teams.B}</div>
+        </div>,
+      rawPronos: Object.entries(match.players).reduce((ps, [playerId, prono]) => {
+        ps[players[playerId].name] = underline(prono)
+        return ps
+      }, {}),
+      pronosResults: buildPronosResultsFromMatch(match)
+    }
+    return pronosResults
   }, {})
 }
 
 const buildAggregatedResultFromMatches = (matches) => {
-  let results = buildResultsFromMatches(matches)
+  let results = buildPronosResultsFromMatches(matches)
+  // temp variable to store the result after previous match so that we can compute the new total
   let previousTotals = Object.values(players).reduce((ps, { name }) => { ps[name] = 0; return ps; }, {})
-  let dataForGraph = Object.entries(results).reduce((matchesForGraph, [matchKey, match], i) => {
+  let dataForGraph = Object.entries(results).reduce((matchesForGraph, [_, match], i) => {
     let matchForGraph = Object.values(players).reduce((totals, { name }) => {
-      totals[name] = match[name] + (i > 0 ? previousTotals[name] : 0)
+      totals[name] = match.pronosResults[name] + (i > 0 ? previousTotals[name] : 0)
+      // store the pronos results on totals so that the tooltip can use it
+      totals.additionalData = match
+      if (!totals.additionalData.previousTotals) {
+        totals.additionalData.previousTotals = {}
+        Object.assign(totals.additionalData.previousTotals, previousTotals)
+      }
+      // update previousTotals
       previousTotals[name] = totals[name]
       return totals
-    }, { name: matchKey })
+    }, { name: match.shortName })
     matchesForGraph.push(matchForGraph)
     return matchesForGraph
   },
@@ -106,13 +138,67 @@ const removeElements = (elements, array) => {
   return result
 }
 
+const computeRankings = (totals) => {
+  return Object.entries(totals).sort((a,b) => a.value < b.value).reduce((ps, p) => {
+
+    return ps
+  }, {})
+}
+
+const CustomToolTip = (props) => {
+  const { active } = props;
+
+  if (active) {
+    const { payload } = props;
+    console.log(payload)
+    let currentPlace = 0
+    let skippedPlaces = 0
+    let scoreOfThePreviousPlayer = Number.MAX_SAFE_INTEGER
+    let dd = payload[0].payload.additionalData.previousTotals
+
+    return (
+      payload[0].payload.additionalData ?
+        <div style={{ backgroundColor: "white", border: "1px solid rgb(204,204,204)" }}>
+          <div style={{marginTop:10, marginBottom:10}}>{payload[0].payload.additionalData.fullName}</div>
+          <table>
+            <tbody>
+              {payload.sort((a, b) => a.value < b.value)
+                .map((pl) => {
+                  if (pl.value !== scoreOfThePreviousPlayer) {
+                    currentPlace += 1 + skippedPlaces
+                    skippedPlaces = 0
+                  } else {
+                    skippedPlaces += 1
+                  }
+                  scoreOfThePreviousPlayer = pl.value
+                  return (
+                    <tr style={{ color: pl.color }} key={pl.name}>
+                      <td>{currentPlace}</td>
+                      <td>(+1)</td>
+                      <td>{pl.name}</td>
+                      <td>{pl.value} pts</td>
+                      <td>(+{pl.payload.additionalData.pronosResults[pl.name]})</td>
+                      <td>{pl.payload.additionalData.rawPronos[pl.name]}</td>
+                    </tr>)
+                })
+              }
+            </tbody>
+          </table>
+        </div> : null
+    );
+  }
+
+  return null;
+}
+
 const SimpleLineChart = ({ data }) => (
   <LineChart width={1000} height={500} data={data}
     margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
     <XAxis dataKey="name" />
     <YAxis />
     <CartesianGrid strokeDasharray="3 3" />
-    <Tooltip />
+    <Tooltip content={<CustomToolTip />} />
+    {/* <Tooltip /> */}
     <Legend />
     {Object.values(players).map(p => <Line key={p.name} type="monotone" dataKey={p.name} stroke={p.color} />)}
   </LineChart>
@@ -133,19 +219,19 @@ const getTeamsFromRegion = (reg) =>
   Object.entries(teams).filter(([_, { region }]) => region === regions.indexOf(reg)).map(([k]) => k).sort().join("<br/>")
 
 const filters = [
-  { type: "Groupe", name:"A"},
-  { type: "Groupe", name:"B"},
-  { type: "Groupe", name:"C"},
-  { type: "Groupe", name:"D"},
-  { type: "Groupe", name:"E"},
-  { type: "Groupe", name:"F"},
-  { type: "Groupe", name:"G"},
-  { type: "Groupe", name:"H"},
-  { type: "1/8"},
-  { type: "1/4"},
-  { type: "1/2"},
-  { type: "Petite Finale"},
-  { type: "Finale"}
+  { type: "Groupe", name: "A" },
+  { type: "Groupe", name: "B" },
+  { type: "Groupe", name: "C" },
+  { type: "Groupe", name: "D" },
+  { type: "Groupe", name: "E" },
+  { type: "Groupe", name: "F" },
+  { type: "Groupe", name: "G" },
+  { type: "Groupe", name: "H" },
+  { type: "1/8" },
+  { type: "1/4" },
+  { type: "1/2" },
+  { type: "Petite Finale" },
+  { type: "Finale" }
 ]
 
 const getDisplayName = (filter) => filter.type === "Groupe" ? `Grp.${filter.name}` : filter.type
@@ -224,11 +310,12 @@ class App extends Component {
                   {filters.map((filter) => {
                     let displayName = getDisplayName(filter)
                     return (
-                    <div key={displayName}>
-                      <CheckBox id={displayName} onChange={this.togglePhase}
-                        checked={!uncheckedPhases.includes(displayName)}
-                        buildTip={getTeamsFromDirtyGroup} />
-                    </div>)})}
+                      <div key={displayName}>
+                        <CheckBox id={displayName} onChange={this.togglePhase}
+                          checked={!uncheckedPhases.includes(displayName)}
+                          buildTip={getTeamsFromDirtyGroup} />
+                      </div>)
+                  })}
                 </div>
                 <div style={{ display: (filterType === "Regions" ? "flex" : "none"), justifyContent: "center" }}>
                   {regions.map((region) => (
