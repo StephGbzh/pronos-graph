@@ -138,9 +138,21 @@ const removeElements = (elements, array) => {
   return result
 }
 
+// in  Object { Jacques: 39, Nicolas: 38, "Stéphane": 39, "Valérie": 31 }
+// out Object { Jacques: 1, "Stéphane": 1, Nicolas: 3, "Valérie": 4 }
 const computeRankings = (totals) => {
-  return Object.entries(totals).sort((a,b) => a.value < b.value).reduce((ps, p) => {
-
+  let currentPlace = 0
+  let skippedPlaces = 0
+  let scoreOfThePreviousPlayer = Number.MAX_SAFE_INTEGER
+  return Object.entries(totals).sort(([_a,avalue],[_b,bvalue]) => avalue < bvalue).reduce((ps, [key, value]) => {
+    if (value !== scoreOfThePreviousPlayer) {
+      currentPlace += 1 + skippedPlaces
+      skippedPlaces = 0
+    } else {
+      skippedPlaces += 1
+    }
+    scoreOfThePreviousPlayer = value
+    ps[key] = currentPlace
     return ps
   }, {})
 }
@@ -154,7 +166,7 @@ const CustomToolTip = (props) => {
     let currentPlace = 0
     let skippedPlaces = 0
     let scoreOfThePreviousPlayer = Number.MAX_SAFE_INTEGER
-    let dd = payload[0].payload.additionalData.previousTotals
+    let previousRankings = computeRankings(payload[0].payload.additionalData.previousTotals)
 
     return (
       payload[0].payload.additionalData ?
@@ -171,10 +183,21 @@ const CustomToolTip = (props) => {
                     skippedPlaces += 1
                   }
                   scoreOfThePreviousPlayer = pl.value
+
+                  let previousRank = previousRankings[pl.name]
+                  let rankEvolution
+                  if (previousRank === currentPlace) {
+                    rankEvolution = "="
+                  } else if (previousRank > currentPlace) {
+                    rankEvolution = `+${previousRank - currentPlace}`
+                  } else {
+                    rankEvolution = `-${currentPlace - previousRank}`
+                  }
+
                   return (
                     <tr style={{ color: pl.color }} key={pl.name}>
                       <td>{currentPlace}</td>
-                      <td>(+1)</td>
+                      <td>({rankEvolution})</td>
                       <td>{pl.name}</td>
                       <td>{pl.value} pts</td>
                       <td>(+{pl.payload.additionalData.pronosResults[pl.name]})</td>
