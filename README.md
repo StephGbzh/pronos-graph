@@ -21,5 +21,6 @@
 
 - Ranking graph by country  
 - Make changeable the points value of the right score/goal diff/winner  
+- Use arrows up and down (slight angle?) instead of + and - in tooltip
 
 
