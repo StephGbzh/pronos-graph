@@ -3,6 +3,7 @@ import ReactTooltip from 'react-tooltip'
 import './App.css';
 import matches from './data/matches.json'
 import teams from './data/teams.json'
+import { ButtonToolbar, ToggleButtonGroup, ToggleButton } from 'react-bootstrap';
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
@@ -82,9 +83,9 @@ const buildPronosResultsFromMatches = (matches) => {
       shortName: `${match.teams.A}-${match.teams.B}`,
       fullName:
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <div style={{marginRight:5}}>{match.teams.A}</div>
+          <div style={{ marginRight: 5 }}>{match.teams.A}</div>
           {underline(match.result)}
-          <div style={{marginLeft:5}}>{match.teams.B}</div>
+          <div style={{ marginLeft: 5 }}>{match.teams.B}</div>
         </div>,
       rawPronos: Object.entries(match.players).reduce((ps, [playerId, prono]) => {
         ps[players[playerId].name] = underline(prono)
@@ -118,7 +119,7 @@ const buildAggregatedResultFromMatches = (matches) => {
   },
     // {name:"FRA-CRO",Jacques:0,Nicolas:0}
     [Object.values(players).reduce((ps, { name }) => { ps[name] = 0; return ps; }, { name: "DEBUT" })])
-  console.log(dataForGraph)
+  //console.log(dataForGraph)
   return dataForGraph
 }
 
@@ -144,7 +145,7 @@ const computeRankings = (totals) => {
   let currentPlace = 0
   let skippedPlaces = 0
   let scoreOfThePreviousPlayer = Number.MAX_SAFE_INTEGER
-  return Object.entries(totals).sort(([_a,avalue],[_b,bvalue]) => avalue < bvalue).reduce((ps, [key, value]) => {
+  return Object.entries(totals).sort(([_a, avalue], [_b, bvalue]) => avalue < bvalue).reduce((ps, [key, value]) => {
     if (value !== scoreOfThePreviousPlayer) {
       currentPlace += 1 + skippedPlaces
       skippedPlaces = 0
@@ -162,16 +163,19 @@ const CustomToolTip = (props) => {
 
   if (active) {
     const { payload } = props;
-    console.log(payload)
+    //console.log(payload)
     let currentPlace = 0
     let skippedPlaces = 0
     let scoreOfThePreviousPlayer = Number.MAX_SAFE_INTEGER
-    let previousRankings = computeRankings(payload[0].payload.additionalData.previousTotals)
+    let previousRankings
+    if (payload[0].payload.additionalData) {
+      previousRankings = computeRankings(payload[0].payload.additionalData.previousTotals)
+    }
 
     return (
       payload[0].payload.additionalData ?
         <div style={{ backgroundColor: "white", border: "1px solid rgb(204,204,204)" }}>
-          <div style={{marginTop:10, marginBottom:10}}>{payload[0].payload.additionalData.fullName}</div>
+          <div style={{ marginTop: 10, marginBottom: 10 }}>{payload[0].payload.additionalData.fullName}</div>
           <table>
             <tbody>
               {payload.sort((a, b) => a.value < b.value)
@@ -195,11 +199,11 @@ const CustomToolTip = (props) => {
                   }
 
                   return (
-                    <tr style={{ color: pl.color }} key={pl.name}>
+                    <tr className="tooltip-row" style={{ color: pl.color }} key={pl.name}>
                       <td>{currentPlace}</td>
-                      <td>({rankEvolution})</td>
+                      <td style={{textAlign:"center"}}>({rankEvolution})</td>
                       <td>{pl.name}</td>
-                      <td>{pl.value} pts</td>
+                      <td style={{textAlign:"right"}}>{pl.value} pts</td>
                       <td>(+{pl.payload.additionalData.pronosResults[pl.name]})</td>
                       <td>{pl.payload.additionalData.rawPronos[pl.name]}</td>
                     </tr>)
@@ -221,25 +225,18 @@ const SimpleLineChart = ({ data }) => (
     <YAxis />
     <CartesianGrid strokeDasharray="3 3" />
     <Tooltip content={<CustomToolTip />} />
-    {/* <Tooltip /> */}
     <Legend />
     {Object.values(players).map(p => <Line key={p.name} type="monotone" dataKey={p.name} stroke={p.color} />)}
   </LineChart>
 );
 
+const getTeamsFromRegion = (reg) =>
+  Object.entries(teams).filter(([_, { region }]) => region === regions.indexOf(reg)).map(([k]) => k).sort().join("<br/>")
+
 const getTeamsFromGroup = (grp) =>
   Object.entries(teams).filter(([_, { group }]) => group === grp).map(([k]) => k).sort().join("<br/>")
 
 const getTeamsFromDirtyGroup = (dgrp) => (dgrp.startsWith("Grp") ? getTeamsFromGroup(dgrp.slice(-1)) : '')
-
-const CheckBox = ({ id, onChange, checked, buildTip }) => (
-  <div>
-    <input type="checkbox" id={id} name={id} onChange={onChange} checked={checked} />
-    <label data-tip={buildTip(id)} data-multiline="true" htmlFor={id}>{id}</label>
-  </div>)
-
-const getTeamsFromRegion = (reg) =>
-  Object.entries(teams).filter(([_, { region }]) => region === regions.indexOf(reg)).map(([k]) => k).sort().join("<br/>")
 
 const filters = [
   { type: "Groupe", name: "A" },
@@ -266,51 +263,28 @@ class App extends Component {
     filterType: "Phases",
     dataPhases: matches,
     dataRegions: matches,
-    uncheckedPhases: [],
+    checkedPhases: filters.map((filter) => getDisplayName(filter)),
     checkedRegions: regions
   }
 
   togglePhase = (event) => {
-    //console.log(event.target.id + " " + event.target.name + " " + event.target.checked)
-    // deep copy the array
-    // https://stackoverflow.com/questions/7486085/copying-array-by-value-in-javascript 
-    let uncheckedPhases = this.state.uncheckedPhases.slice()
-    let clickedItem = event.target.name
-
-    if (event.target.checked) {
-      uncheckedPhases = removeElement(clickedItem, uncheckedPhases)
-    } else {
-      uncheckedPhases.push(clickedItem)
-    }
-
-    let newData = matches.filter(match => !uncheckedPhases.includes(getPhase(match)))
-
-    this.setState({ uncheckedPhases: uncheckedPhases, dataPhases: newData })
+    let newData = matches.filter(match => event.includes(getPhase(match)))
+    this.setState({ checkedPhases: event, dataPhases: newData })
   }
 
   toggleRegion = (event) => {
-    let checkedRegions = this.state.checkedRegions.slice()
-    let clickedItem = event.target.name
-
-    if (event.target.checked) {
-      checkedRegions = mergeDedupe([checkedRegions, [clickedItem]])
-    } else {
-      checkedRegions = removeElement(clickedItem, checkedRegions)
-    }
-
     let newData = matches.filter(match =>
-      checkedRegions.includes(regions[teams[match.teams.A].region]) &&
-      checkedRegions.includes(regions[teams[match.teams.B].region]))
-
-    this.setState({ checkedRegions: checkedRegions, dataRegions: newData })
+      event.includes(regions[teams[match.teams.A].region]) &&
+      event.includes(regions[teams[match.teams.B].region]))
+    this.setState({ checkedRegions: event, dataRegions: newData })
   }
 
   changeFilterType = (event) => {
-    this.setState({ filterType: event.target.value })
+    this.setState({ filterType: event })
   }
 
   render() {
-    const { filterType, dataPhases, dataRegions, uncheckedPhases, checkedRegions } = this.state
+    const { filterType, dataPhases, dataRegions, checkedPhases, checkedRegions } = this.state
     return (
       <div className="App">
         <table style={{ width: 1000 }}>
@@ -318,35 +292,30 @@ class App extends Component {
             <tr>
               <td>
                 <div style={{ display: "flex", justifyContent: "center" }}>
-                  {["Phases", "Regions"].map(ft =>
-                    <div key={ft}>
-                      <input type="radio" name="filterType" value={ft} checked={filterType === ft}
-                        onChange={this.changeFilterType} />
-                      <label htmlFor="filterType">{ft}</label>
-                    </div>)}
+                  <ButtonToolbar>
+                    <ToggleButtonGroup type="radio" name="options" defaultValue={"Phases"} onChange={this.changeFilterType}>
+                      {["Phases", "Regions"].map(ft => <ToggleButton key={ft} value={ft}>{ft}</ToggleButton>)}
+                    </ToggleButtonGroup>
+                  </ButtonToolbar>
                 </div>
               </td>
             </tr>
             <tr>
               <td>
                 <div style={{ display: (filterType === "Phases" ? "flex" : "none"), justifyContent: "center" }}>
-                  {filters.map((filter) => {
-                    let displayName = getDisplayName(filter)
-                    return (
-                      <div key={displayName}>
-                        <CheckBox id={displayName} onChange={this.togglePhase}
-                          checked={!uncheckedPhases.includes(displayName)}
-                          buildTip={getTeamsFromDirtyGroup} />
-                      </div>)
-                  })}
+                  <ToggleButtonGroup type="checkbox" value={checkedPhases} onChange={this.togglePhase}>
+                    {filters.map((filter) => {
+                      let displayName = getDisplayName(filter)
+                      return (<ToggleButton key={displayName} value={displayName}
+                        data-tip={getTeamsFromDirtyGroup(displayName)} data-multiline="true">{displayName}</ToggleButton>)
+                    })}
+                  </ToggleButtonGroup>
                 </div>
                 <div style={{ display: (filterType === "Regions" ? "flex" : "none"), justifyContent: "center" }}>
-                  {regions.map((region) => (
-                    <div key={region}>
-                      <CheckBox id={region} onChange={this.toggleRegion}
-                        checked={checkedRegions.includes(region)}
-                        buildTip={getTeamsFromRegion} />
-                    </div>))}
+                  <ToggleButtonGroup type="checkbox" value={checkedRegions} onChange={this.toggleRegion}>
+                    {regions.map((region) => <ToggleButton key={region} value={region}
+                      data-tip={getTeamsFromRegion(region)} data-multiline="true">{region}</ToggleButton>)}
+                  </ToggleButtonGroup>
                 </div>
               </td>
             </tr>

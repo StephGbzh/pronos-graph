@@ -15,9 +15,11 @@
     1 (=) Toto 52 pts (+6) (4-1)  
     3 (-2) Titi  8 pts (+0) (0-2)  
 
+✔ Use React-Bootstrap to have more mobile-friendly buttons  
+
 ## TODO
 
 - Ranking graph by country  
 - Make changeable the points value of the right score/goal diff/winner  
-- Use React-Bootstrap to have more mobile-friendly buttons  
+
 
