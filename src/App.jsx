@@ -158,12 +158,6 @@ const computeRankings = (totals) => {
   }, {});
 };
 
-
-CustomToolTip.propTypes = {
-  active: PropTypes.bool.isRequired,
-  payload: PropTypes.array.isRequired,
-};
-
 const CustomToolTip = (props) => {
   const { active } = props;
 
@@ -224,9 +218,9 @@ const CustomToolTip = (props) => {
   return null;
 };
 
-
-SimpleLineChart.propTypes = {
-  data: PropTypes.object.isRequired,
+CustomToolTip.propTypes = {
+  active: PropTypes.bool.isRequired,
+  payload: PropTypes.array.isRequired,
 };
 
 const SimpleLineChart = ({ data }) => (
@@ -240,6 +234,10 @@ const SimpleLineChart = ({ data }) => (
     {Object.values(players).map(p => <Line key={p.name} type='monotone' dataKey={p.name} stroke={p.color} />)}
   </LineChart>
 );
+
+SimpleLineChart.propTypes = {
+  data: PropTypes.object.isRequired,
+};
 
 const getTeamsFromRegion = (reg) =>
   Object.entries(teams).filter(([_, { region }]) => region === regions.indexOf(reg)).map(([k]) => k).sort().join('<br/>');
