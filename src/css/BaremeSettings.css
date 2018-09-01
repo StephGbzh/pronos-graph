@@ -1,0 +1,13 @@
+div.bareme-settings {
+   margin-bottom: 25px;
+}
+
+div.bareme-settings>div {
+   display: flex;
+}
+
+div.bareme-settings>div>div {
+   width: 33%;
+   max-width: 350px;
+   min-width: 350px;
+}

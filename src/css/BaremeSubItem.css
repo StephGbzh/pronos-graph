@@ -1,5 +1,6 @@
 div.bareme-sub-item {
    display: flex;
+   margin-bottom: 10px;
 }
 
 /* center span content text vertically */
@@ -9,7 +10,7 @@ div.bareme-sub-item span {
 }
 
 div.bareme-sub-item>span.title {
-   width: 100px;
+   width: 125px;
    margin-left: 20px;
 }
 
@@ -17,7 +18,8 @@ div.bareme-sub-item>button {
    width: 35px;
 }
 
-div.bareme-sub-item>span.value {
-   margin-left: 10px;
-   margin-right: 10px;
+div.bareme-sub-item>div.value {
+   width: 30px;
+   text-align: center;
+   padding-top: 2%;
 }

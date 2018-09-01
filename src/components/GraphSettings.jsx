@@ -26,7 +26,6 @@ const getTeamsFromDirtyGroup = (dgrp) => (dgrp.startsWith('Grp') ? getTeamsFromG
 
 class GraphSettings extends Component {
   state = {
-    filterType: 'Phases',
     checkedPhases: filters.map((filter) => getDisplayName(filter)),
     checkedRegions: regions,
   };
@@ -42,12 +41,12 @@ class GraphSettings extends Component {
   };
 
   changeFilterType = (newFilterType) => {
-    this.setState({ filterType: newFilterType });
     this.props.setFilterType(newFilterType);
   };
 
   render() {
-    const { filterType, checkedPhases, checkedRegions } = this.state;
+    const { filterType } = this.props;
+    const { checkedPhases, checkedRegions } = this.state;
     return (
       <table style={{ width: 1000 }}>
         <tbody>
@@ -98,6 +97,7 @@ class GraphSettings extends Component {
 }
 
 GraphSettings.propTypes = {
+  filterType: PropTypes.string.isRequired,
   setFilterType: PropTypes.func.isRequired,
   setPhases: PropTypes.func.isRequired,
   setRegions: PropTypes.func.isRequired,
