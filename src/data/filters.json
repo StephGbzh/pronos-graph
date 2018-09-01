@@ -1,0 +1,15 @@
+[
+   { "type": "Groupe", "name": "A" },
+   { "type": "Groupe", "name": "B" },
+   { "type": "Groupe", "name": "C" },
+   { "type": "Groupe", "name": "D" },
+   { "type": "Groupe", "name": "E" },
+   { "type": "Groupe", "name": "F" },
+   { "type": "Groupe", "name": "G" },
+   { "type": "Groupe", "name": "H" },
+   { "type": "1/8" },
+   { "type": "1/4" },
+   { "type": "1/2" },
+   { "type": "Petite Finale" },
+   { "type": "Finale" }
+ ]
