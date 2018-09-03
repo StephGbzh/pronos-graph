@@ -9,3 +9,7 @@
 body {
   margin-left: 5px;
 }
+
+div.App {
+  width: 1000px;
+}

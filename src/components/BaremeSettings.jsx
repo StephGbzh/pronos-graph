@@ -5,9 +5,15 @@ import BaremeSubItem from './BaremeSubItem';
 
 import '../css/BaremeSettings.css';
 
+export const defaultBareme = {
+  vainqueur: { exact: 1, faux: 0 },
+  score: { exact: 1, ecart1: 0, ecart2: 0, faux: 0 },
+  diff: { exact: 1, ecart1: 0, faux: 0 },
+};
+
 const BaremeSettings = ({ bareme, setBaremeValue }) => (
   <div className="bareme-settings">
-    <h2>Barème de points par pronostic</h2>
+    <h2>Barème : points par pronostic</h2>
     <div>
       <div>
         <h3>Vainqueur</h3>

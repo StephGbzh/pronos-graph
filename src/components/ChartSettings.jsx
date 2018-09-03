@@ -24,7 +24,7 @@ const getTeamsFromGroup = (grp) =>
 
 const getTeamsFromDirtyGroup = (dgrp) => (dgrp.startsWith('Grp') ? getTeamsFromGroup(dgrp.slice(-1)) : '');
 
-class GraphSettings extends Component {
+class ChartSettings extends Component {
   state = {
     checkedPhases: filters.map((filter) => getDisplayName(filter)),
     checkedRegions: regions,
@@ -96,11 +96,11 @@ class GraphSettings extends Component {
   }
 }
 
-GraphSettings.propTypes = {
+ChartSettings.propTypes = {
   filterType: PropTypes.string.isRequired,
   setFilterType: PropTypes.func.isRequired,
   setPhases: PropTypes.func.isRequired,
   setRegions: PropTypes.func.isRequired,
 };
 
-export default GraphSettings;
+export default ChartSettings;

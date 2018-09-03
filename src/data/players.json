@@ -1,6 +1,18 @@
 {
-   "1": { "name": "Jacques", "color": "#ff3419" },
-   "2": { "name": "Nicolas", "color": "#0000e5" },
-   "3": { "name": "Stéphane", "color": "#00ff00" },
-   "4": { "name": "Valérie", "color": "#ff00ff" }
+   "1": {
+      "name": "Jacques",
+      "color": "#ff7f0e"
+   },
+   "2": {
+      "name": "Nicolas",
+      "color": "#1f77b4"
+   },
+   "3": {
+      "name": "Stéphane",
+      "color": "#2ca02c"
+   },
+   "4": {
+      "name": "Valérie",
+      "color": "#d62728"
+   }
 }
