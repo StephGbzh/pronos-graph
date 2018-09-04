@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
 
 import players from '../data/players.json';
 
@@ -17,9 +17,8 @@ const RankingBarChart = ({ chartDataRaw }) => {
   return (
     <div className="ranking-barchart">
       <BarChart width={600} height={300} data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" />
-        <YAxis domain={[0, (dataMax) => Math.floor(dataMax * 1.1)]} />
+        <XAxis dataKey="name" axisLine={false} tickLine={false} />
+        <YAxis domain={[0, (dataMax) => Math.floor(dataMax * 1.1)]} hide={true} />
         <Tooltip />
         <Bar dataKey="result" label={{ position: 'top' }}>
           {chartData.map((entry, index) => (
