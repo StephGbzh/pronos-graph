@@ -20,8 +20,8 @@
     3 (-2) Titi  8 pts (+0) (0-2)
 
 ✔ Use React-Bootstrap to have more mobile-friendly buttons  
-✔ Make changeable the points value of the right score/goal diff/winner
-✔ Use arrows up️ and down (slight angle?) instead of + and - in tooltip️: ↗️ ↘
+✔ Make changeable the points value of the right score/goal diff/winner  
+✔ Use arrows up️ and down (slight angle?) instead of + and - in tooltip️: `↗️` `↘`
 
 ## TODO
 
