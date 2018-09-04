@@ -56,9 +56,9 @@ const CustomToolTip = (props) => {
               if (previousRank === currentPlace) {
                 rankEvolution = '=';
               } else if (previousRank > currentPlace) {
-                rankEvolution = `+${previousRank - currentPlace}`;
+                rankEvolution = `↗️${previousRank - currentPlace}`;
               } else {
-                rankEvolution = `-${currentPlace - previousRank}`;
+                rankEvolution = `↘️${currentPlace - previousRank}`;
               }
 
               let pointsEvolution = pl.payload.additionalData.pronosResults[pl.name];
