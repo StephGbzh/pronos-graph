@@ -13,7 +13,7 @@ export const defaultBareme = {
 
 const BaremeSettings = ({ bareme, setBaremeValue }) => (
   <div className="bareme-settings">
-    <h2>Barème : points par pronostic</h2>
+    <h2>Barème : points par match</h2>
     <div>
       <div>
         <h3>Vainqueur</h3>
