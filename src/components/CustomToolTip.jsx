@@ -61,7 +61,7 @@ const CustomToolTip = (props) => {
                 rankEvolution = `↘️${currentPlace - previousRank}`;
               }
 
-              let pointsEvolution = pl.payload.additionalData.pronosResults[pl.name];
+              let pointsEvolution = pl.payload.additionalData.pronosResults[pl.name].outcome;
 
               return (
                 <tr className="tooltip-row" style={{ color: pl.color }} key={pl.name}>

@@ -2,7 +2,7 @@
 
 [Launch](https://stephgbzh.github.io/pronos-graph/)
 
-## DONE
+## TODO/DONE
 
 ✔ This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).  
 ✔ Favicon taken from [here](https://www.favicon.cc/?action=icon&file_id=888567)  
@@ -21,8 +21,5 @@
 
 ✔ Use React-Bootstrap to have more mobile-friendly buttons  
 ✔ Make changeable the points value of the right score/goal diff/winner  
-✔ Use arrows up️ and down (slight angle?) instead of + and - in tooltip️: `↗️` `↘`
-
-## TODO
-
-- Ranking graph by country
+✔ Use arrows up️ and down (slight angle?) instead of + and - in tooltip️: `↗️` `↘`  
+✔ Ranking table by country

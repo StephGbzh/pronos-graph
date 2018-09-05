@@ -13,4 +13,6 @@ const removeElements = (elements, array) => {
   return result;
 };
 
-export default { mergeDedupe, removeElement, removeElements };
+const transpose = (array) => array[0].map((col, i) => array.map((row) => row[i]));
+
+export default { mergeDedupe, removeElement, removeElements, transpose };

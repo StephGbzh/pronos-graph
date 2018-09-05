@@ -7,10 +7,9 @@ import players from '../data/players.json';
 import '../css/RankingBarChart.css';
 
 // j "#ff3419" n "#0000e5" s "#00ff00" v "#ff00ff"
-const RankingBarChart = ({ chartDataRaw }) => {
-  let finalResult = chartDataRaw[chartDataRaw.length - 1];
+const RankingBarChart = ({ chartDataLast }) => {
   let chartData = Object.values(players).reduce((data, p) => {
-    data.push({ name: p.name, result: finalResult[p.name] });
+    data.push({ name: p.name, result: chartDataLast[p.name] });
     return data;
   }, []);
   //console.log(chartData);
@@ -31,7 +30,7 @@ const RankingBarChart = ({ chartDataRaw }) => {
 };
 
 RankingBarChart.propTypes = {
-  chartDataRaw: PropTypes.array.isRequired,
+  chartDataLast: PropTypes.object.isRequired,
 };
 
 export default RankingBarChart;

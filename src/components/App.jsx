@@ -5,6 +5,7 @@ import BaremeSettings, { defaultBareme } from './BaremeSettings';
 import SimpleLineChart from './SimpleLineChart';
 import ChartSettings from './ChartSettings';
 import RankingBarChart from './RankingBarChart';
+import ResultsByTeamTable from './ResultsByTeamTable';
 
 import buildAggregatedResultFromMatches from '../js/ranking';
 
@@ -20,32 +21,32 @@ class App extends Component {
   state = {
     filterType: 'Phases',
     bareme: defaultBareme,
-    chartData: buildAggregatedResultFromMatches(matches, defaultBareme),
+    rankings: buildAggregatedResultFromMatches(matches, defaultBareme),
   };
 
   dataPhases = matches;
   dataRegions = matches;
-  chartDataPhases = this.state.chartData;
-  chartDataRegions = this.state.chartData;
+  rankingsPhases = this.state.rankings;
+  rankingsRegions = this.state.rankings;
 
   setPhases = (newPhases) => {
     this.dataPhases = matches.filter((match) => newPhases.includes(getPhase(match)));
-    this.chartDataPhases = buildAggregatedResultFromMatches(this.dataPhases, this.state.bareme);
-    this.setState({ chartData: this.chartDataPhases });
+    this.rankingsPhases = buildAggregatedResultFromMatches(this.dataPhases, this.state.bareme);
+    this.setState({ rankings: this.rankingsPhases });
   };
 
   setRegions = (newRegions) => {
     this.dataRegions = matches.filter(
       (match) => newRegions.includes(regions[teams[match.teams.A].region]) && newRegions.includes(regions[teams[match.teams.B].region]),
     );
-    this.chartDataRegions = buildAggregatedResultFromMatches(this.dataRegions, this.state.bareme);
-    this.setState({ chartData: this.chartDataRegions });
+    this.rankingsRegions = buildAggregatedResultFromMatches(this.dataRegions, this.state.bareme);
+    this.setState({ rankings: this.rankingsRegions });
   };
 
   setFilterType = (newFilterType) => {
     this.setState({
       filterType: newFilterType,
-      chartData: newFilterType === 'Phases' ? this.chartDataPhases : this.chartDataRegions,
+      rankings: newFilterType === 'Phases' ? this.rankingsPhases : this.rankingsRegions,
     });
   };
 
@@ -55,18 +56,19 @@ class App extends Component {
     newBareme[a][b] += isAdd ? 1 : -1;
     this.setState({
       bareme: newBareme,
-      chartData: buildAggregatedResultFromMatches(this.state.filterType === 'Phases' ? this.dataPhases : this.dataRegions, newBareme),
+      rankings: buildAggregatedResultFromMatches(this.state.filterType === 'Phases' ? this.dataPhases : this.dataRegions, newBareme),
     });
   };
 
   render() {
-    const { filterType, bareme, chartData } = this.state;
+    const { filterType, bareme, rankings } = this.state;
     return (
       <div className="App">
         <BaremeSettings bareme={bareme} setBaremeValue={this.setBaremeValue} />
-        <RankingBarChart chartDataRaw={chartData} />
+        <RankingBarChart chartDataLast={rankings.dataForGraph[rankings.dataForGraph.length - 1]} />
+        <ResultsByTeamTable resultsByTeam={rankings.resultsByTeam} />
         <ChartSettings filterType={filterType} setFilterType={this.setFilterType} setPhases={this.setPhases} setRegions={this.setRegions} />
-        <SimpleLineChart chartData={chartData} />
+        <SimpleLineChart chartData={rankings.dataForGraph} />
         <ReactTooltip />
       </div>
     );
