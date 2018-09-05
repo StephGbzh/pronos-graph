@@ -22,8 +22,9 @@ const ResultsByTeamTable = ({ resultsByTeam }) => {
     .map((resultsByTeamsSorted) => Object.values(resultsByTeamsSorted).map(([team, { average }]) => [team, average]));
   let topResultsByTeams = [];
   for (let i = 0; i < resultsByTeam2.length; i++) {
+    // showing the top 5 is enough
     for (let j = 0; j < 5 /*dd[i].length*/; j++) {
-      if (i == 0) {
+      if (i === 0) {
         topResultsByTeams[j] = [];
       }
       topResultsByTeams[j][i] = resultsByTeam2[i][j];
@@ -33,7 +34,7 @@ const ResultsByTeamTable = ({ resultsByTeam }) => {
   //console.log(topResultsByTeams);
   return (
     <Fragment>
-      <h2>Equipes rapportant le plus de points par match</h2>
+      <h3>Equipes rapportant le plus de points par match</h3>
       <Table striped bordered condensed hover>
         <thead>
           <tr>

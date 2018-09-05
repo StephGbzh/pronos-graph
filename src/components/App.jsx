@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ReactTooltip from 'react-tooltip';
+import { Navbar } from 'react-bootstrap';
 
 import BaremeSettings, { defaultBareme } from './BaremeSettings';
 import SimpleLineChart from './SimpleLineChart';
@@ -64,6 +65,14 @@ class App extends Component {
     const { filterType, bareme, rankings } = this.state;
     return (
       <div className="App">
+        <Navbar inverse fixedTop>
+          <Navbar.Header style={{ marginLeft: 70 }}>
+            <Navbar.Brand>
+              <span>Résultats des pronostics de la Coupe du Monde 2018</span>
+            </Navbar.Brand>
+            <Navbar.Toggle />
+          </Navbar.Header>
+        </Navbar>
         <BaremeSettings bareme={bareme} setBaremeValue={this.setBaremeValue} />
         <RankingBarChart chartDataLast={rankings.dataForGraph[rankings.dataForGraph.length - 1]} />
         <ResultsByTeamTable resultsByTeam={rankings.resultsByTeam} />
