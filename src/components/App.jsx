@@ -66,10 +66,8 @@ class App extends Component {
     return (
       <div className="App">
         <Navbar inverse fixedTop>
-          <Navbar.Header>
-            <Navbar.Brand>
-              <span>Résultats des pronostics de la Coupe du Monde 2018</span>
-            </Navbar.Brand>
+          <Navbar.Header style={{ marginLeft: 80 }}>
+            <Navbar.Brand>Résultats des pronostics de la Coupe du Monde 2018</Navbar.Brand>
           </Navbar.Header>
         </Navbar>
         <BaremeSettings bareme={bareme} setBaremeValue={this.setBaremeValue} />
