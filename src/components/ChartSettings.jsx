@@ -6,6 +6,8 @@ import filters from '../data/filters.json';
 import regions from '../data/regions.json';
 import teams from '../data/teams.json';
 
+import '../css/ChartSettings.css';
+
 const getDisplayName = (filter) => (filter.type === 'Groupe' ? `Grp.${filter.name}` : filter.type);
 
 const getTeamsFromRegion = (reg) =>
@@ -48,11 +50,11 @@ class ChartSettings extends Component {
     const { filterType } = this.props;
     const { checkedPhases, checkedRegions } = this.state;
     return (
-      <table style={{ width: 1000 }}>
+      <table className="char-settings">
         <tbody>
           <tr>
             <td>
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <div className="buttons-phases-regions">
                 <ButtonToolbar>
                   <ToggleButtonGroup type="radio" name="options" defaultValue={'Phases'} onChange={this.changeFilterType}>
                     {['Phases', 'Regions'].map((ft) => (
@@ -67,7 +69,7 @@ class ChartSettings extends Component {
           </tr>
           <tr>
             <td>
-              <div style={{ display: filterType === 'Phases' ? 'flex' : 'none', justifyContent: 'center' }}>
+              <div className="buttons-phases" style={{ display: filterType === 'Phases' ? 'flex' : 'none' }}>
                 <ToggleButtonGroup type="checkbox" value={checkedPhases} onChange={this.togglePhase}>
                   {filters.map((filter) => {
                     let displayName = getDisplayName(filter);
@@ -79,7 +81,7 @@ class ChartSettings extends Component {
                   })}
                 </ToggleButtonGroup>
               </div>
-              <div style={{ display: filterType === 'Regions' ? 'flex' : 'none', justifyContent: 'center' }}>
+              <div className="buttons-regions" style={{ display: filterType === 'Regions' ? 'flex' : 'none' }}>
                 <ToggleButtonGroup type="checkbox" value={checkedRegions} onChange={this.toggleRegion}>
                   {regions.map((region) => (
                     <ToggleButton key={region} value={region} data-tip={getTeamsFromRegion(region)} data-multiline="true">

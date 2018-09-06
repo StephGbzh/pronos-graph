@@ -4,6 +4,8 @@ import { Table } from 'react-bootstrap';
 
 import players from '../data/players.json';
 
+import '../css/ResultsByTeamTable.css';
+
 // resultsByTeam: {Jacques:{ALL:{average:0.8333333333333334, matchCount:3, score:2.5},...
 const ResultsByTeamTable = ({ resultsByTeam }) => {
   // array of {nb of players} arrays of {nb of matches} arrays like this one: ["FRA", 1.5]
@@ -33,7 +35,7 @@ const ResultsByTeamTable = ({ resultsByTeam }) => {
   //console.log(resultsByTeam2);
   //console.log(topResultsByTeams);
   return (
-    <Fragment>
+    <div className="results-by-team-table">
       <h3>Equipes rapportant le plus de points par match</h3>
       <Table striped bordered condensed hover>
         <thead>
@@ -60,7 +62,7 @@ const ResultsByTeamTable = ({ resultsByTeam }) => {
           ))}
         </tbody>
       </Table>
-    </Fragment>
+    </div>
   );
 };
 

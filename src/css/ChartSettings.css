@@ -1,0 +1,13 @@
+table.char-settings {
+   width: 1000px;
+}
+
+div.buttons-phases-regions {
+   display: flex;
+   justify-content: center;
+}
+
+div.buttons-phases,
+div.buttons-regions {
+   justify-content: center;
+}
