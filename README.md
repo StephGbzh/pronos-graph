@@ -23,3 +23,8 @@
 ✔ Make changeable the points value of the right score/goal diff/winner  
 ✔ Use arrows up️ and down (slight angle?) instead of + and - in tooltip️: `↗️` `↘`  
 ✔ Ranking table by country
+
+## NOTES
+
+npm run start  
+npm run deploy
