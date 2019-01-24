@@ -1,6 +1,13 @@
 {
-  "main.css": "static/css/main.55b3b1a0.css",
-  "main.css.map": "static/css/main.55b3b1a0.css.map",
-  "main.js": "static/js/main.f1fe86e0.js",
-  "main.js.map": "static/js/main.f1fe86e0.js.map"
+  "main.css": "/pronos-graph/static/css/main.0b384e0c.chunk.css",
+  "main.js": "/pronos-graph/static/js/main.7c2d3228.chunk.js",
+  "main.js.map": "/pronos-graph/static/js/main.7c2d3228.chunk.js.map",
+  "static/js/1.94ef6d2b.chunk.js": "/pronos-graph/static/js/1.94ef6d2b.chunk.js",
+  "static/js/1.94ef6d2b.chunk.js.map": "/pronos-graph/static/js/1.94ef6d2b.chunk.js.map",
+  "runtime~main.js": "/pronos-graph/static/js/runtime~main.7a0cdbf5.js",
+  "runtime~main.js.map": "/pronos-graph/static/js/runtime~main.7a0cdbf5.js.map",
+  "static/css/main.0b384e0c.chunk.css.map": "/pronos-graph/static/css/main.0b384e0c.chunk.css.map",
+  "index.html": "/pronos-graph/index.html",
+  "precache-manifest.07158707e387bd6008df9f07155251fb.js": "/pronos-graph/precache-manifest.07158707e387bd6008df9f07155251fb.js",
+  "service-worker.js": "/pronos-graph/service-worker.js"
 }
